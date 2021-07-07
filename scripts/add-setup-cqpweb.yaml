@@ -1,0 +1,100 @@
+#cloud-config
+users:
+  - default
+  - name: terraform
+    gecos: terraform
+    primary_group: hashicorp
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    groups: sudo
+    ssh_import_id:
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+yNX2lbqw6g2OSBqnDoQOP6gr4sj98cGool0OSUH4b6XeBYHxPwAFxmlQqjNT0sLLzE9eACwGPn9vu98HJsYPKLe/0YoHySf9BcnRUfBAORpQPlcM5kfrZcMonRbRzVqirD+iaLugL0Nd9jp3qcyGnjkeswd3Feg+4v+/AFyrcjGbtHO3alh5iuL5isXxW6qTwRJ6yWEmTv4naQefx3u1zss8OgxaS8xJgoohzAzxY+2T2fZRt8Q683CFoV8fFel45XzGSo6fZxFwImwN983lRyo2U2QIqPbKoywBFeULSMbR+kUliqpXp9t5GyQrCR9JW4rOJJk3uXFDzrBcD2FQoyNE3MNFak7PnOWqeETy/YFDT+a+OdttN9QcxHV3VzI8HXksZvpLCFql0zGycqTTLpxu73VULZjU45B/0tQXVo39Evk6OfazvRQDPVnJWdVimDfLZsG38f9V/quNYqEfinkhe7V0zUYIYQ44S1PNJTce8jzPUfLXVTzgF8XXR7cPwJauT5v/R5yp0YMLFCSYKrNEL/mbKbpu1K8ReaGiH2rvifuMaWljbX479aE7M/ueqzmae4cC/JJbSAh7JQxTd5ghW1zn5CsCNppMOHhKvtUkTVoW7/ZMAcfY7LVv39pHrM3U/NWepU9TkKVcs0AxlxDD+IxlkUddyyHRqs4bjQ== bbatalo@hotmail.com
+    shell: /bin/bash
+package_update: true
+packages:
+  - nginx
+  - unzip
+
+runcmd:
+  - su - terraform
+  - cd /home/terraform/
+
+  # Setup Nginx
+  - ufw allow ssh
+  - ufw allow 'Nginx Full'
+  - ufw delete allow 'Nginx HTTP'
+  - sudo ufw enable
+
+  # Setup PHP
+  - sudo apt update
+  - sudo apt upgrade -y
+  - sudo apt install -y ca-certificates apt-transport-https software-properties-common
+  - sudo add-apt-repository -y ppa:ondrej/php
+  - sudo apt install -y php8.0-fpm
+  # - sudo systemctl status php8.0-fpm
+  - sudo apt install -y php8.0-gd php8.0-intl php8.0-mbstring php8.0-mysqli
+
+  # Setup PHP ini files
+  # TODO
+
+  # Setup R
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+  - sudo add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'
+  - sudo apt update -y
+  - sudo apt install -y r-base
+
+  # Setup and install MySQL
+  # TODO
+
+  # Setup and install CWB
+  - cd /home/terraform/
+
+  - sudo apt install -y flex bison libncurses5-dev libncursesw5-dev libreadline6-dev libglib2.0-dev
+  # sudo apt install glib2.0 # if needed
+  - wget https://sourceforge.net/projects/cwb/files/cwb/cwb-3.4-beta/cwb-3.4.22-source.tar.gz/download
+  - tar -xzf download cwb-3.4.22/ && rm download
+  - cd cwb-3.4.22/ && sudo install-scripts/install-linux
+  - echo 'export PATH="/usr/local/cwb-3.4.22/bin:$PATH"' >> ~/.bashrc
+  - export PATH="/usr/local/cwb-3.4.22/bin:$PATH"
+
+  # Setup and install CWB Perl modules
+  - cd /home/terraform/
+  - sudo apt install -y subversion
+  - svn co http://svn.code.sf.net/p/cwb/code/perl/trunk/ CQPPerl
+  - cd CQPPerl/CWB && perl Makefile.PL && make && sudo make install
+  - cd ../CWB-CL && perl Makefile.PL && make && sudo make install
+  - cd ../CWB-CQI && perl Makefile.PL && make && sudo make install
+  - cd ../CWB-Web && perl Makefile.PL && make && sudo make install
+
+  # Setup and instal CQPweb
+  - cd /home/terraform/
+  - wget sourceforge.net/projects/cwb/files/CQPweb/CQPweb-3.2/CQPweb-3.2.43.tar.gz/download
+  - tar -xzf download && rm download
+
+  - sudo mkdir /var/www/cqpweb.corpuslinguist.com/
+  - cd CQPweb-3.2.43 && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.corpuslinguist.com/
+
+  - sudo chown -R terraform:www-data /var/www/cqpweb.corpuslinguist.com/
+
+  # Setup nginx config for cqpweb
+  # TODO
+
+  # - sudo ln -s /etc/nginx/sites-available/cqpweb.corpuslinguist.com /etc/nginx/sites-enabled/
+  # - sudo unlink /etc/nginx/sites-enabled/default
+
+  # - sudo nginx -t
+  # - sudo systemctl reload nginx
+
+  # # Setup data directory
+  # # TODO
+  # - sudo mkdir cqpweb_data
+  # - cd cqpweb_data
+  # - sudo mkdir corpora
+  # - sudo mkdir registry
+  # - sudo mkdir temp
+  # - sudo mkdir upload
+  # - cd ..
+  # - sudo chown -R terraform:www-data cqpweb_data/
+  - cd /home/terraform/
+  - echo "Finally done!" >> hello.txt
