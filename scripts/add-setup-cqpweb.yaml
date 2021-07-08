@@ -26,6 +26,9 @@ runcmd:
   - ufw delete allow 'Nginx HTTP'
   - sudo ufw enable
 
+  - wget https://github.com/bbatalo/CQPweb/archive/refs/heads/main.zip
+  - unzip main.zip
+
   # Setup PHP
   - sudo apt update
   - sudo apt upgrade -y
@@ -36,7 +39,10 @@ runcmd:
   - sudo apt install -y php8.0-gd php8.0-intl php8.0-mbstring php8.0-mysqli
 
   # Setup PHP ini files
-  # TODO
+  - sudo cp /home/terraform/CQPweb-main/config/cli-php.ini /etc/php/8.0/cli/php.ini
+  - sudo cp /home/terraform/CQPweb-main/config/fpm-php.ini /etc/php/8.0/fpm/php.ini
+  - sudo systemctl restart php8.0-fpm.service
+  - sudo systemctl restart nginx.service
 
   # Setup R
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -45,23 +51,25 @@ runcmd:
   - sudo apt install -y r-base
 
   # Setup and install MySQL
-  # TODO
+  - sudo apt install -y mysql-server
+  - sudo mysql -e "create database cqpweb_db character set utf8mb4;"
+  - sudo mysql -e "create user cqpweb identified by 'cqpweb';"
+  - sudo mysql -e "grant all on cqpweb_db.* to cqpweb;"
+  - sudo mysql -e "grant file on *.* to cqpweb;"
+  - sudo mysql -e "grant process on *.* to cqpweb;"
+
+  # Setup my.cnf
+  - sudo cp /home/terraform/CQPweb-main/config/my.cnf /etc/mysql/my.cnf
+  - sudo systemctl restart mysql
 
   # Setup and install CWB
-  - cd /home/terraform/
-
   - sudo apt install -y flex bison libncurses5-dev libncursesw5-dev libreadline6-dev libglib2.0-dev
-  # sudo apt install glib2.0 # if needed
-  - wget https://sourceforge.net/projects/cwb/files/cwb/cwb-3.4-beta/cwb-3.4.22-source.tar.gz/download
-  - tar -xzf download cwb-3.4.22/ && rm download
-  - cd cwb-3.4.22/ && sudo install-scripts/install-linux
+  - cd /home/terraform/CQPweb-main/cwb-3.4.22/ && sudo install-scripts/install-linux
   - echo 'export PATH="/usr/local/cwb-3.4.22/bin:$PATH"' >> ~/.bashrc
   - export PATH="/usr/local/cwb-3.4.22/bin:$PATH"
 
   # Setup and install CWB Perl modules
-  - cd /home/terraform/
-  - sudo apt install -y subversion
-  - svn co http://svn.code.sf.net/p/cwb/code/perl/trunk/ CQPPerl
+  - cd /home/terraform/CQPweb-main/
   - cd CQPPerl/CWB && perl Makefile.PL && make && sudo make install
   - cd ../CWB-CL && perl Makefile.PL && make && sudo make install
   - cd ../CWB-CQI && perl Makefile.PL && make && sudo make install
@@ -69,32 +77,35 @@ runcmd:
 
   # Setup and instal CQPweb
   - cd /home/terraform/
-  - wget sourceforge.net/projects/cwb/files/CQPweb/CQPweb-3.2/CQPweb-3.2.43.tar.gz/download
-  - tar -xzf download && rm download
-
   - sudo mkdir /var/www/cqpweb.corpuslinguist.com/
-  - cd CQPweb-3.2.43 && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.corpuslinguist.com/
-
+  - cd /home/terraform/CQPweb-main/ && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.corpuslinguist.com/
+  - sudo cp /home/terraform/CQPweb-main/config/config.inc.php /var/www/cqpweb.corpuslinguist.com/lib/
   - sudo chown -R terraform:www-data /var/www/cqpweb.corpuslinguist.com/
+  chmod 777 -R /var/www/cqpweb.corpuslinguist.com/
 
   # Setup nginx config for cqpweb
-  # TODO
+  - sudo cp /home/terraform/CQPweb-main/config/cqpweb /etc/nginx/sites-available/cqpweb.corpuslinguist.com
 
-  # - sudo ln -s /etc/nginx/sites-available/cqpweb.corpuslinguist.com /etc/nginx/sites-enabled/
-  # - sudo unlink /etc/nginx/sites-enabled/default
+  - sudo ln -s /etc/nginx/sites-available/cqpweb.corpuslinguist.com /etc/nginx/sites-enabled/
+  - sudo unlink /etc/nginx/sites-enabled/default
 
-  # - sudo nginx -t
-  # - sudo systemctl reload nginx
+  - sudo nginx -t
+  - sudo systemctl reload nginx
 
   # # Setup data directory
-  # # TODO
-  # - sudo mkdir cqpweb_data
-  # - cd cqpweb_data
-  # - sudo mkdir corpora
-  # - sudo mkdir registry
-  # - sudo mkdir temp
-  # - sudo mkdir upload
-  # - cd ..
-  # - sudo chown -R terraform:www-data cqpweb_data/
+  - cd /mnt/cqpweb_data/
+  - sudo mkdir cqpweb && cd cqpweb
+  - sudo mkdir corpora
+  - sudo mkdir registry
+  - sudo mkdir temp
+  - sudo mkdir upload
+  - sudo chown -R terraform:www-data /mnt/cqpweb_data/cqpweb/
+  - chmod 777 -R /mnt/cqpweb_data/cqpweb/
+
+  - sudo cp /home/terraform/CQPweb-main/config/usr.sbin.mysqld /etc/apparmor.d/usr.sbin.mysqld
+  - sudo systemctl restart apparmor.service
+  # - cd /var/www/cqpweb.corpuslinguist.com/bin/ && sudo php autosetup.php
+
   - cd /home/terraform/
-  - echo "Finally done!" >> hello.txt
+  - echo "Finally done!/n" >> hello.txt
+  - echo "Don't forget to update passwords and enable HTTPS." >> warning.txt
