@@ -15,6 +15,7 @@ resource "digitalocean_droplet" "cqpweb" {
   name               = "cqpweb"
   region             = "sgp1"
   size               = "s-1vcpu-1gb"
+  monitoring         = true
   private_networking = true
   ssh_keys = [
     data.digitalocean_ssh_key.bojan.id

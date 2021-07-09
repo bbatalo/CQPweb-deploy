@@ -81,7 +81,7 @@ runcmd:
   - cd /home/terraform/CQPweb-main/ && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.corpuslinguist.com/
   - sudo cp /home/terraform/CQPweb-main/config/config.inc.php /var/www/cqpweb.corpuslinguist.com/lib/
   - sudo chown -R terraform:www-data /var/www/cqpweb.corpuslinguist.com/
-  chmod 777 -R /var/www/cqpweb.corpuslinguist.com/
+  - chmod 777 -R /var/www/cqpweb.corpuslinguist.com/
 
   # Setup nginx config for cqpweb
   - sudo cp /home/terraform/CQPweb-main/config/cqpweb /etc/nginx/sites-available/cqpweb.corpuslinguist.com
