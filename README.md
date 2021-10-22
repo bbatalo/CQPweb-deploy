@@ -36,6 +36,8 @@ Terraform is an infrastructure as code software tool which enables provisioning 
 
 Having setup Terraform and DigitalOcean CLI, installing CQPweb is as simple as running the following two commands. We recommend running them one by one and inspecting the output of each command. The first command, `terraform plan` will create a Terraform plan, which outlines infrastructure (containing CQPweb) which will be created. The second command, `terraform apply` executes the plan and creates outlined infrastructure.
 
+_Note_: Before running, please add your public key to line 12 of `scripts/add-setup-cqpweb.yaml`. In future versions we will try to make this automatic.
+
 ```bash
 terraform plan \
   -var "do_token=${DO_PAT}" \
