@@ -18,7 +18,7 @@ resource "digitalocean_droplet" "cqpweb" {
   monitoring         = true
   private_networking = true
   ssh_keys = [
-    data.digitalocean_ssh_key.bojan.id
+    data.digitalocean_ssh_key.admin.id
   ]
 
   user_data = data.template_file.user_data_cqpweb.rendered

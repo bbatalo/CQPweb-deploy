@@ -14,6 +14,6 @@ provider "digitalocean" {
   token = var.do_token
 }
 
-data "digitalocean_ssh_key" "bojan" {
-  name = "bojan"
+data "digitalocean_ssh_key" "admin" {
+  name = "admin"
 }

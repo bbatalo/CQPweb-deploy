@@ -9,6 +9,7 @@ users:
     ssh_import_id:
     lock_passwd: true
     ssh_authorized_keys:
+      # ssh-rsa PUBLIC_KEY_HERE
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+yNX2lbqw6g2OSBqnDoQOP6gr4sj98cGool0OSUH4b6XeBYHxPwAFxmlQqjNT0sLLzE9eACwGPn9vu98HJsYPKLe/0YoHySf9BcnRUfBAORpQPlcM5kfrZcMonRbRzVqirD+iaLugL0Nd9jp3qcyGnjkeswd3Feg+4v+/AFyrcjGbtHO3alh5iuL5isXxW6qTwRJ6yWEmTv4naQefx3u1zss8OgxaS8xJgoohzAzxY+2T2fZRt8Q683CFoV8fFel45XzGSo6fZxFwImwN983lRyo2U2QIqPbKoywBFeULSMbR+kUliqpXp9t5GyQrCR9JW4rOJJk3uXFDzrBcD2FQoyNE3MNFak7PnOWqeETy/YFDT+a+OdttN9QcxHV3VzI8HXksZvpLCFql0zGycqTTLpxu73VULZjU45B/0tQXVo39Evk6OfazvRQDPVnJWdVimDfLZsG38f9V/quNYqEfinkhe7V0zUYIYQ44S1PNJTce8jzPUfLXVTzgF8XXR7cPwJauT5v/R5yp0YMLFCSYKrNEL/mbKbpu1K8ReaGiH2rvifuMaWljbX479aE7M/ueqzmae4cC/JJbSAh7JQxTd5ghW1zn5CsCNppMOHhKvtUkTVoW7/ZMAcfY7LVv39pHrM3U/NWepU9TkKVcs0AxlxDD+IxlkUddyyHRqs4bjQ== bbatalo@hotmail.com
     shell: /bin/bash
 package_update: true
@@ -77,16 +78,16 @@ runcmd:
 
   # Setup and instal CQPweb
   - cd /home/terraform/
-  - sudo mkdir /var/www/cqpweb.corpuslinguist.com/
-  - cd /home/terraform/CQPweb-main/ && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.corpuslinguist.com/
-  - sudo cp /home/terraform/CQPweb-main/config/config.inc.php /var/www/cqpweb.corpuslinguist.com/lib/
-  - sudo chown -R terraform:www-data /var/www/cqpweb.corpuslinguist.com/
-  - chmod 777 -R /var/www/cqpweb.corpuslinguist.com/
+  - sudo mkdir /var/www/cqpweb.com/
+  - cd /home/terraform/CQPweb-main/ && sudo mv CQPweb-3.2.43/* /var/www/cqpweb.com/
+  - sudo cp /home/terraform/CQPweb-main/config/config.inc.php /var/www/cqpweb.com/lib/
+  - sudo chown -R terraform:www-data /var/www/cqpweb.com/
+  - chmod 777 -R /var/www/cqpweb.com/
 
   # Setup nginx config for cqpweb
-  - sudo cp /home/terraform/CQPweb-main/config/cqpweb /etc/nginx/sites-available/cqpweb.corpuslinguist.com
+  - sudo cp /home/terraform/CQPweb-main/config/cqpweb /etc/nginx/sites-available/cqpweb.com
 
-  - sudo ln -s /etc/nginx/sites-available/cqpweb.corpuslinguist.com /etc/nginx/sites-enabled/
+  - sudo ln -s /etc/nginx/sites-available/cqpweb.com /etc/nginx/sites-enabled/
   - sudo unlink /etc/nginx/sites-enabled/default
 
   - sudo nginx -t
@@ -104,7 +105,7 @@ runcmd:
 
   - sudo cp /home/terraform/CQPweb-main/config/usr.sbin.mysqld /etc/apparmor.d/usr.sbin.mysqld
   - sudo systemctl restart apparmor.service
-  # - cd /var/www/cqpweb.corpuslinguist.com/bin/ && sudo php autosetup.php
+  # - cd /var/www/cqpweb.com/bin/ && sudo php autosetup.php
 
   - cd /home/terraform/
   - echo "Finally done!/n" >> hello.txt
